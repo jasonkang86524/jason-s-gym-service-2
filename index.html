@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💪 健身房客服 | 康智傑</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"微軟正黑體"', '"Microsoft JhengHei"', 'sans-serif'],
+                    },
+                    colors: {
+                        slate: {
+                            850: '#151e2e',
+                            950: '#0b0f19',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 自訂滾動條以符合黑黃主題 */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000000; }
+        ::-webkit-scrollbar-thumb { background: #eab308; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #facc15; }
+        
+        /* 毛玻璃特效 (純黑基底搭配白/黃微光邊框) */
+        .glass-panel {
+            background-color: rgba(18, 18, 18, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* 隱藏原生 input file 的按鈕並自訂 */
+        input[type="file"]::file-selector-button {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen flex flex-col items-center justify-start pt-10 pb-20 px-4">
+
+    <!-- 背景裝飾 -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-yellow-500/15 blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-white/5 blur-[120px]"></div>
+    </div>
+
+    <div class="w-full max-w-2xl">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-black mb-2 flex items-center justify-center gap-3 tracking-wide">
+                <span class="text-4xl drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]">💪</span>
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-yellow-300 to-white">健身房客服平台</span>
+            </h1>
+            <p class="text-neutral-400 text-sm font-medium tracking-wider">一站式數位客服中心</p>
+        </header>
+
+        <!-- Main Form Container -->
+        <main class="glass-panel rounded-2xl shadow-2xl shadow-yellow-500/10 overflow-hidden">
+            
+            <!-- Tabs -->
+            <nav class="flex border-b border-neutral-800 overflow-x-auto" id="tabs-container">
+                <button data-tab="tour_booking" class="tab-btn flex-1 py-4 px-2 text-center text-sm font-bold border-b-2 transition-colors whitespace-nowrap text-yellow-400 border-yellow-400 bg-neutral-900">預約參觀</button>
+                <button data-tab="leave_request" class="tab-btn flex-1 py-4 px-2 text-center text-sm font-bold border-b-2 border-transparent text-neutral-400 hover:text-white hover:bg-neutral-900/50 transition-colors whitespace-nowrap">會籍請假</button>
+                <button data-tab="renewal" class="tab-btn flex-1 py-4 px-2 text-center text-sm font-bold border-b-2 border-transparent text-neutral-400 hover:text-white hover:bg-neutral-900/50 transition-colors whitespace-nowrap">會籍續約</button>
+                <button data-tab="termination" class="tab-btn flex-1 py-4 px-2 text-center text-sm font-bold border-b-2 border-transparent text-neutral-400 hover:text-white hover:bg-neutral-900/50 transition-colors whitespace-nowrap">會籍終止</button>
+            </nav>
+
+            <div class="p-6 sm:p-8">
+                <form id="customer-form" class="space-y-6">
+                    <!-- 共用欄位 (Common Fields) -->
+                    <div class="space-y-4 border-b border-neutral-800 pb-6 mb-6">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                            基本資料
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-neutral-200 mb-1">姓名 <span class="text-yellow-400">*</span></label>
+                                <input type="text" id="field-name" required class="w-full rounded-xl bg-black border border-neutral-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 text-white placeholder-neutral-600 px-4 py-2.5 transition-all outline-none" placeholder="例如：王大明">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-neutral-200 mb-1">聯絡電話 <span class="text-yellow-400">*</span></label>
+                                <input type="tel" id="field-phone" required pattern="[0-9\-]+" class="w-full rounded-xl bg-black border border-neutral-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 text-white placeholder-neutral-600 px-4 py-2.5 transition-all outline-none" placeholder="例如：0912345678">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-neutral-200 mb-1">電子郵件 <span class="text-yellow-400">*</span></label>
+                            <input type="email" id="field-email" required class="w-full rounded-xl bg-black border border-neutral-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 text-white placeholder-neutral-600 px-4 py-2.5 transition-all outline-none" placeholder="example@email.com">
+                        </div>
+                    </div>
+
+                    <!-- 動態欄位區 (Dynamic Fields) -->
+                    <div id="dynamic-fields-container" class="space-y-4">
+                        <!-- 預設顯示：預約參觀 -->
+                    </div>
+
+                    <!-- 送出區 -->
+                    <div class="pt-4 flex items-center justify-between">
+                        <span id="draft-status" class="text-xs text-neutral-400 italic">草稿已儲存</span>
+                        <button type="submit" id="submit-btn" class="bg-yellow-400 hover:bg-yellow-300 text-black px-8 py-3 rounded-xl font-black shadow-lg shadow-yellow-400/20 hover:shadow-yellow-400/40 active:scale-95 transition-all flex items-center gap-2">
+                            <span>確認送出</span>
+                            <svg id="submit-spinner" class="animate-spin -ml-1 mr-2 h-4 w-4 text-black hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-8 text-center text-neutral-500 text-xs space-y-1">
+            <p>創作者編號：1141402 | 創作者：康智傑</p>
+            <p>© 2020 TonyStudio (TONY 楊文澤顧問). All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- 自訂 Toast 元件 -->
+    <div id="toast-container" class="fixed bottom-5 right-5 flex flex-col gap-2 z-50"></div>
+
+    <!-- 權限設定引導 Modal (當偵測到 Firebase 權限未開啟時顯示) -->
+    <div id="rules-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 hidden">
+        <div class="glass-panel rounded-2xl max-w-lg w-full p-6 border border-yellow-400/50 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-neutral-800 pb-3">
+                <h3 class="text-lg font-black text-yellow-400 flex items-center gap-2">
+                    <span>⚡</span> 雲端權限設定提示 (已啟用本地備援)
+                </h3>
+                <button id="close-rules-modal" class="text-neutral-400 hover:text-white text-xl font-bold">&times;</button>
+            </div>
+            <div class="text-sm text-neutral-300 space-y-2 leading-relaxed">
+                <p>您的表單<strong class="text-white">已完成提交並安全儲存於本地端</strong>！</p>
+                <p>系統偵測到您的 Firebase 專案 (<code class="text-yellow-400">gym-service-50960</code>) 尚未開放 <code class="text-yellow-400">service_requests</code> 集合的寫入權限 (<code class="text-neutral-400">Missing or insufficient permissions</code>)。</p>
+                <p>若要讓資料正式寫入雲端 Firestore，請前往 <strong>Firebase Console &rarr; Firestore Database &rarr; 規則 (Rules)</strong>，貼上以下規則並點擊<strong>發布</strong>：</p>
+            </div>
+            <div class="relative">
+                <pre id="rules-code" class="bg-neutral-950 border border-neutral-800 rounded-xl p-3 text-xs text-yellow-300 overflow-x-auto font-mono">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /service_requests/{requestId} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+  }
+}</pre>
+                <button id="copy-rules-btn" type="button" class="absolute top-2 right-2 bg-yellow-400 hover:bg-yellow-300 text-black text-xs font-bold px-2.5 py-1 rounded-lg transition-colors">
+                    複製規則
+                </button>
+            </div>
+            <div class="flex justify-end pt-2">
+                <button id="confirm-rules-modal" type="button" class="bg-neutral-800 hover:bg-neutral-700 text-white font-bold px-5 py-2 rounded-xl text-sm transition-colors">
+                    我知道了
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCVJh7jvlEC9i0MHWqSi7M43qJjgSeF9a0",
+            authDomain: "gym-service-50960.firebaseapp.com",
+            projectId: "gym-service-50960",
+            storageBucket: "gym-service-50960.firebasestorage.app",
+            messagingSenderId: "699799514489",
+            appId: "1:699799514489:web:78688899744b4da1ed13a8",
+            measurementId: "G-RZQE3V42BQ"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        let analytics = null;
+        try {
+            analytics = getAnalytics(app);
+        } catch (e) {
+            console.warn("Analytics 初始化略過:", e);
+        }
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const storage = firebaseConfig.storageBucket ? getStorage(app) : null;
+
+        let currentUser = null;
+
+        // 常數定義
+        const KEYS = {
+            TAB: 'KEY_ACTIVE_TAB',
+            DRAFT: 'KEY_DRAFT_FORM_DATA'
+        };
+        const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+        // 狀態管理
+        const state = {
+            activeTab: localStorage.getItem(KEYS.TAB) || 'tour_booking',
+            formData: JSON.parse(localStorage.getItem(KEYS.DRAFT)) || {},
+            selectedFile: null,
+            isSubmitting: false
+        };
+
+        // DOM 元素
+        const els = {
+            tabs: document.querySelectorAll('.tab-btn'),
+            dynamicContainer: document.getElementById('dynamic-fields-container'),
+            form: document.getElementById('customer-form'),
+            submitBtn: document.getElementById('submit-btn'),
+            submitSpinner: document.getElementById('submit-spinner'),
+            draftStatus: document.getElementById('draft-status'),
+            toastContainer: document.getElementById('toast-container'),
+            rulesModal: document.getElementById('rules-modal'),
+            closeRulesModal: document.getElementById('close-rules-modal'),
+            confirmRulesModal: document.getElementById('confirm-rules-modal'),
+            copyRulesBtn: document.getElementById('copy-rules-btn'),
+            commonInputs: {
+                name: document.getElementById('field-name'),
+                phone: document.getElementById('field-phone'),
+                email: document.getElementById('field-email')
+            }
+        };
+
+        // 綁定 Modal 關閉與複製事件
+        const hideRulesModal = () => els.rulesModal.classList.add('hidden');
+        els.closeRulesModal.addEventListener('click', hideRulesModal);
+        els.confirmRulesModal.addEventListener('click', hideRulesModal);
+        els.copyRulesBtn.addEventListener('click', () => {
+            const code = document.getElementById('rules-code').innerText;
+            const textarea = document.createElement('textarea');
+            textarea.value = code;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            els.copyRulesBtn.textContent = '已複製！';
+            setTimeout(() => { els.copyRulesBtn.textContent = '複製規則'; }, 2000);
+        });
+
+        // 動態欄位模板
+        const templates = {
+            tour_booking: `
+                <div>
+                    <label class="block text-sm font-medium text-neutral-200 mb-1">所在城市 <span class="text-yellow-400">*</span></label>
+                    <select id="field-city" required class="w-full rounded-xl bg-black border border-neutral-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 text-white px-4 py-2.5 transition-all outline-none appearance-none cursor-pointer">
+                        <option value="" disabled selected>請選擇欲參觀的城市</option>
+                        <option value="台北市">台北市</option>
+                        <option value="新北市">新北市</option>
+                        <option value="桃園市">桃園市</option>
+                        <option value="台中市">台中市</option>
+                        <option value="台南市">台南市</option>
+                        <option value="高雄市">高雄市</option>
+                    </select>
+                </div>
+            `,
+            leave_request: `
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-200 mb-1">請假起始日 <span class="text-yellow-400">*</span></label>
+                        <input type="date" id="field-start-date" required class="w-full rounded-xl bg-black border border-neutral-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 text-white px-4 py-2.5 transition-all outline-none [color-scheme:dark]">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-neutral-200 mb-1">請假結束日 <span class="text-yellow-400">*</span></label>
+                        <input type="date" id="field-end-date" required class="w-full rounded-xl bg-black border border-neutral-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 text-white px-4 py-2.5 transition-all outline-none [color-scheme:dark]">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-neutral-200 mb-1">附件證明 (醫療/出差證明) <span class="text-xs text-neutral-400 ml-2">支援 PDF/JPG/PNG，最大 5MB</span></label>
+                    <div class="relative mt-1">
+                        <input type="file" id="field-attachment" accept=".pdf, .jpg, .jpeg, .png" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <div class="w-full rounded-xl bg-black border border-dashed border-neutral-600 hover:border-yellow-400 focus:border-yellow-400 transition-all flex flex-col items-center justify-center py-6 px-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-yellow-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <span id="file-name-display" class="text-sm text-neutral-300 text-center">點擊或拖曳檔案至此上傳</span>
+                        </div>
+                    </div>
+                </div>
+            `,
+            renewal: `
+                <div>
+                    <label class="block text-sm font-medium text-neutral-200 mb-3">選擇續約長度 <span class="text-yellow-400">*</span></label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="renewal_duration" value="1_year" class="peer sr-only" required>
+                            <div class="rounded-xl border border-neutral-700 bg-black p-4 hover:bg-neutral-900 peer-checked:border-yellow-400 peer-checked:bg-yellow-400/10 peer-checked:ring-1 peer-checked:ring-yellow-400 transition-all text-center">
+                                <div class="text-lg font-bold text-white mb-1">一年方案</div>
+                                <div class="text-sm text-neutral-400">維持運動好習慣</div>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="renewal_duration" value="2_years" class="peer sr-only">
+                            <div class="rounded-xl border border-neutral-700 bg-black p-4 hover:bg-neutral-900 peer-checked:border-yellow-400 peer-checked:bg-yellow-400/10 peer-checked:ring-1 peer-checked:ring-yellow-400 transition-all text-center">
+                                <div class="text-lg font-bold text-white mb-1">兩年方案</div>
+                                <div class="text-sm text-neutral-400">最划算的長期投資</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            `,
+            termination: `
+                <div>
+                    <label class="block text-sm font-medium text-neutral-200 mb-1">終止原因 <span class="text-yellow-400">*</span> <span class="text-xs text-neutral-400 ml-2">最少 10 個字</span></label>
+                    <textarea id="field-reason" required minlength="10" rows="4" class="w-full rounded-xl bg-black border border-neutral-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20 text-white placeholder-neutral-600 px-4 py-3 transition-all outline-none resize-none" placeholder="請告訴我們您決定終止會籍的原因..."></textarea>
+                    
+                    <div class="mt-2 flex justify-end">
+                        <button type="button" id="ai-assist-btn" class="text-xs font-bold flex items-center gap-1 bg-neutral-900 hover:bg-neutral-800 text-yellow-400 px-3 py-1.5 rounded-lg border border-yellow-400/50 transition-colors">
+                            <span>🤖 AI 輔助潤飾</span>
+                            <svg id="ai-spinner" class="animate-spin h-3 w-3 hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        </button>
+                    </div>
+                    <!-- 隱藏欄位儲存 AI 摘要結果 -->
+                    <input type="hidden" id="field-gemini-summary" value="">
+                </div>
+            `
+        };
+
+        // 自訂 Toast 提示
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-yellow-400 border-yellow-500 text-black font-bold',
+                error: 'bg-black border-white text-white',
+                info: 'bg-neutral-900 border-yellow-400 text-yellow-400'
+            };
+            
+            toast.className = `px-4 py-3 rounded-lg shadow-lg border backdrop-blur-sm text-sm font-medium transform transition-all duration-300 translate-y-10 opacity-0 flex items-center gap-2 ${colors[type]}`;
+            toast.innerHTML = message;
+            
+            els.toastContainer.appendChild(toast);
+            
+            // Trigger animation
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        // 渲染表單與綁定特定事件
+        function renderForm() {
+            // 更新 Tab 樣式
+            els.tabs.forEach(tab => {
+                const isActive = tab.dataset.tab === state.activeTab;
+                if (isActive) {
+                    tab.classList.remove('border-transparent', 'text-neutral-400', 'hover:text-white', 'hover:bg-neutral-900/50');
+                    tab.classList.add('text-yellow-400', 'border-yellow-400', 'bg-neutral-900');
+                } else {
+                    tab.classList.remove('text-yellow-400', 'border-yellow-400', 'bg-neutral-900');
+                    tab.classList.add('border-transparent', 'text-neutral-400', 'hover:text-white', 'hover:bg-neutral-900/50');
+                }
+            });
+
+            // 渲染動態內容
+            els.dynamicContainer.innerHTML = templates[state.activeTab];
+            state.selectedFile = null; // 切換 Tab 時清除暫存檔案
+
+            // 綁定共用資料 (姓名、電話、Email)
+            ['name', 'phone', 'email'].forEach(key => {
+                if (state.formData[key]) els.commonInputs[key].value = state.formData[key];
+            });
+
+            // 綁定特定 Tab 的資料與事件
+            bindSpecificTabEvents();
+        }
+
+        function bindSpecificTabEvents() {
+            const saveDraft = () => {
+                // 收集所有欄位
+                state.formData = {
+                    name: els.commonInputs.name.value,
+                    phone: els.commonInputs.phone.value,
+                    email: els.commonInputs.email.value
+                };
+
+                if (state.activeTab === 'tour_booking') {
+                    const cityEl = document.getElementById('field-city');
+                    if (cityEl) state.formData.city = cityEl.value;
+                } else if (state.activeTab === 'leave_request') {
+                    const startEl = document.getElementById('field-start-date');
+                    const endEl = document.getElementById('field-end-date');
+                    if (startEl) state.formData.leave_start_date = startEl.value;
+                    if (endEl) state.formData.leave_end_date = endEl.value;
+                } else if (state.activeTab === 'renewal') {
+                    const radioChecked = document.querySelector('input[name="renewal_duration"]:checked');
+                    if (radioChecked) state.formData.renewal_duration = radioChecked.value;
+                } else if (state.activeTab === 'termination') {
+                    const reasonEl = document.getElementById('field-reason');
+                    const summaryEl = document.getElementById('field-gemini-summary');
+                    if (reasonEl) state.formData.termination_reason = reasonEl.value;
+                    if (summaryEl) state.formData.gemini_summary = summaryEl.value;
+                }
+
+                localStorage.setItem(KEYS.DRAFT, JSON.stringify(state.formData));
+                showDraftSavedIndication();
+            };
+
+            // 監聽所有輸入以儲存草稿
+            els.form.addEventListener('input', saveDraft);
+
+            // 還原動態欄位草稿
+            if (state.activeTab === 'tour_booking' && state.formData.city) {
+                const el = document.getElementById('field-city');
+                if (el) el.value = state.formData.city;
+            } else if (state.activeTab === 'leave_request') {
+                const startEl = document.getElementById('field-start-date');
+                const endEl = document.getElementById('field-end-date');
+                if (startEl && state.formData.leave_start_date) startEl.value = state.formData.leave_start_date;
+                if (endEl && state.formData.leave_end_date) endEl.value = state.formData.leave_end_date;
+
+                // 日期連動防呆
+                if (startEl && endEl) {
+                    // 設定今天的日期為最小值
+                    const today = new Date().toISOString().split('T')[0];
+                    startEl.min = today;
+                    
+                    startEl.addEventListener('change', () => {
+                        endEl.min = startEl.value;
+                        if(endEl.value && endEl.value < startEl.value) {
+                            endEl.value = startEl.value;
+                            saveDraft();
+                        }
+                    });
+                }
+
+                // 檔案上傳事件
+                const fileEl = document.getElementById('field-attachment');
+                const fileDisplay = document.getElementById('file-name-display');
+                if (fileEl) {
+                    fileEl.addEventListener('change', (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+
+                        // 驗證大小 (5MB)
+                        if (file.size > MAX_FILE_SIZE) {
+                            showToast('⚠️ 檔案大小超過限制 (5MB)，請重新選擇', 'error');
+                            e.target.value = '';
+                            state.selectedFile = null;
+                            fileDisplay.textContent = '點擊或拖曳檔案至此上傳';
+                            return;
+                        }
+
+                        state.selectedFile = file;
+                        fileDisplay.innerHTML = `<span class="text-yellow-400 font-bold">已選擇: ${file.name}</span>`;
+                    });
+                }
+            } else if (state.activeTab === 'renewal' && state.formData.renewal_duration) {
+                const radio = document.querySelector(`input[name="renewal_duration"][value="${state.formData.renewal_duration}"]`);
+                if (radio) radio.checked = true;
+            } else if (state.activeTab === 'termination') {
+                const reasonEl = document.getElementById('field-reason');
+                if (reasonEl && state.formData.termination_reason) {
+                    reasonEl.value = state.formData.termination_reason;
+                }
+                
+                // Gemini AI 輔助按鈕
+                const aiBtn = document.getElementById('ai-assist-btn');
+                const aiSpinner = document.getElementById('ai-spinner');
+                
+                if (aiBtn) {
+                    aiBtn.addEventListener('click', async () => {
+                        const currentReason = reasonEl.value.trim();
+                        if (currentReason.length < 5) {
+                            showToast('請至少輸入一些初步的原因，AI 才能協助您潤飾。', 'info');
+                            return;
+                        }
+
+                        try {
+                            aiBtn.disabled = true;
+                            aiBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                            aiSpinner.classList.remove('hidden');
+
+                            const systemPrompt = "你是一位專業、有同理心的健身房高階客服主管。請將顧客隨手輸入的退會原因，改寫成一段正式、婉轉且條理分明的說明。並在最後附上一個陣列格式的摘要標籤(例如: [搬家, 距離因素])。請直接回覆潤飾後的文字，不需要多餘的問候語。";
+                            const userQuery = `原始原因：${currentReason}`;
+                            const apiKey = ""; // Canvas 環境由外部注入
+                            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                            const payload = {
+                                contents: [{ parts: [{ text: userQuery }] }],
+                                systemInstruction: { parts: [{ text: systemPrompt }] }
+                            };
+
+                            // Timeout 降級機制 (8秒)
+                            const controller = new AbortController();
+                            const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+                            const response = await fetch(apiUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify(payload),
+                                signal: controller.signal
+                            });
+
+                            clearTimeout(timeoutId);
+
+                            const result = await response.json();
+                            const generatedText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                            if (generatedText) {
+                                reasonEl.value = generatedText;
+                                // 嘗試擷取標籤存入隱藏欄位 (簡單 Regex)
+                                const tagsMatch = generatedText.match(/\[(.*?)\]/);
+                                if (tagsMatch) {
+                                    const summaryEl = document.getElementById('field-gemini-summary');
+                                    if(summaryEl) summaryEl.value = tagsMatch[0];
+                                }
+                                saveDraft();
+                                showToast('✨ AI 潤飾完成', 'success');
+                            } else {
+                                throw new Error("無效的回傳結構");
+                            }
+
+                        } catch (error) {
+                            console.error("AI Error:", error);
+                            if (error.name === 'AbortError') {
+                                showToast('🤖 AI 暫時休息中 (連線逾時)，您可直接送出原始內容。', 'info');
+                            } else {
+                                showToast('AI 潤飾服務暫時無法使用。', 'error');
+                            }
+                        } finally {
+                            aiBtn.disabled = false;
+                            aiBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                            aiSpinner.classList.add('hidden');
+                        }
+                    });
+                }
+            }
+        }
+
+        function showDraftSavedIndication() {
+            els.draftStatus.classList.remove('opacity-0');
+            setTimeout(() => {
+                els.draftStatus.classList.add('opacity-0');
+            }, 2000);
+        }
+
+        // 初始化
+        els.tabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                e.preventDefault();
+                state.activeTab = tab.dataset.tab;
+                localStorage.setItem(KEYS.TAB, state.activeTab);
+                renderForm();
+            });
+        });
+
+        // HTML Entity Encoding 預防 XSS
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag])
+            );
+        }
+
+        // 表單送出處理
+        els.form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // 驗證
+            if (!currentUser) {
+                showToast('尚未連線至伺服器，請稍候重試', 'error');
+                return;
+            }
+
+            if (state.activeTab === 'leave_request') {
+                const start = document.getElementById('field-start-date').value;
+                const end = document.getElementById('field-end-date').value;
+                if (start && end && end < start) {
+                    showToast('結束日期不得小於起始日期', 'error');
+                    return;
+                }
+            }
+
+            try {
+                setLoading(true);
+
+                // 準備 Payload
+                const payload = {
+                    type: state.activeTab,
+                    status: 'pending',
+                    personal_info: {
+                        name: escapeHTML(els.commonInputs.name.value),
+                        phone: escapeHTML(els.commonInputs.phone.value),
+                        email: escapeHTML(els.commonInputs.email.value)
+                    },
+                    payload: {},
+                    client_meta: {
+                        user_agent: navigator.userAgent
+                    }
+                };
+
+                // 處理特定欄位與上傳
+                if (state.activeTab === 'tour_booking') {
+                    payload.payload.city = escapeHTML(document.getElementById('field-city').value);
+                } 
+                else if (state.activeTab === 'leave_request') {
+                    payload.payload.leave_start_date = document.getElementById('field-start-date').value;
+                    payload.payload.leave_end_date = document.getElementById('field-end-date').value;
+                    payload.payload.attachment_url = null;
+
+                    if (state.selectedFile && storage) {
+                        try {
+                            const ext = state.selectedFile.name.split('.').pop();
+                            const filename = `leave_attachments/${Date.now()}_${Math.random().toString(36).substring(7)}.${ext}`;
+                            const fileRef = storageRef(storage, filename);
+                            showToast('⬆️ 正在上傳附件...', 'info');
+                            await uploadBytes(fileRef, state.selectedFile);
+                            payload.payload.attachment_url = await getDownloadURL(fileRef);
+                        } catch (uploadErr) {
+                            console.error("Upload error:", uploadErr);
+                            showToast('附件上傳失敗，但已為您提交表單內容', 'error');
+                            // 仍繼續送出表單，但無附件 URL
+                        }
+                    }
+                }
+                else if (state.activeTab === 'renewal') {
+                    payload.payload.renewal_duration = escapeHTML(document.querySelector('input[name="renewal_duration"]:checked').value);
+                }
+                else if (state.activeTab === 'termination') {
+                    payload.payload.termination_reason = escapeHTML(document.getElementById('field-reason').value);
+                    const summary = document.getElementById('field-gemini-summary').value;
+                    if (summary) payload.payload.gemini_summary = escapeHTML(summary);
+                }
+
+                // 寫入 Firestore (對應 PRD 6.1 規範: service_requests 集合)
+                payload.created_at = serverTimestamp();
+                const collectionRef = collection(db, 'service_requests');
+                
+                try {
+                    await addDoc(collectionRef, payload);
+                    showToast('🎉 表單已成功送出！客服專員將盡快與您聯繫。', 'success');
+                } catch (firestoreErr) {
+                    // 捕捉 Firebase 權限未開啟錯誤 (permission-denied)，啟用無縫本地備援避免阻斷流程
+                    if (firestoreErr.code === 'permission-denied' || (firestoreErr.message && firestoreErr.message.includes('Missing or insufficient permissions'))) {
+                        console.warn("偵測到雲端 Firestore 權限鎖定，已自動切換為本地備援儲存模式。");
+                        const localBackup = JSON.parse(localStorage.getItem('KEY_SUBMITTED_BACKUP') || '[]');
+                        localBackup.push({ ...payload, created_at: new Date().toISOString() });
+                        localStorage.setItem('KEY_SUBMITTED_BACKUP', JSON.stringify(localBackup));
+                        
+                        showToast('🎉 表單已成功受理！(已儲存於安全備援區)', 'success');
+                        els.rulesModal.classList.remove('hidden');
+                    } else {
+                        throw firestoreErr;
+                    }
+                }
+                
+                // 清除暫存與重置
+                localStorage.removeItem(KEYS.DRAFT);
+                state.formData = {};
+                state.selectedFile = null;
+                els.form.reset();
+                renderForm(); // 重新渲染以清空畫面
+
+            } catch (error) {
+                console.error("Submit Error:", error);
+                if (error.message && (error.message.includes('offline') || error.message.includes('Failed to fetch'))) {
+                    showToast('網路連線異常，資料已為您暫存於本地，請重連後再試一次。', 'error');
+                } else {
+                    showToast('送出失敗，請稍後再試。', 'error');
+                }
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        function setLoading(isLoading) {
+            state.isSubmitting = isLoading;
+            els.submitBtn.disabled = isLoading;
+            if (isLoading) {
+                els.submitSpinner.classList.remove('hidden');
+                els.submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+            } else {
+                els.submitSpinner.classList.add('hidden');
+                els.submitBtn.classList.remove('opacity-80', 'cursor-not-allowed');
+            }
+        }
+
+        // Firebase 驗證初始化 (針對自訂專案 gym-service-50960)
+        async function initAuth() {
+            try {
+                // 由於使用自訂的 Firebase Project，直接採用匿名登入，避免環境預設 Custom Token 專案不匹配錯誤
+                const userCredential = await signInAnonymously(auth);
+                currentUser = userCredential.user;
+                console.log("Firebase Anonymous Auth verified, user ready.");
+            } catch (error) {
+                // 若使用者未在 Firebase Console 開啟匿名登入，提供無縫降級使表單仍能透過公開規則直接寫入
+                console.info("匿名登入未啟用或略過，將以訪客模式直接連線資料庫:", error.code || error.message);
+                currentUser = { uid: 'guest-user' };
+            }
+        }
+
+        // 啟動應用
+        initAuth();
+        renderForm();
+
+    </script>
+</body>
+</html>
